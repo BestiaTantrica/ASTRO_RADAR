@@ -1,0 +1,56 @@
+{
+    "max_open_trades": 6,
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "dry_run_wallet": 1000,
+    "tradable_balance_ratio": 0.90,
+    "fiat_display_currency": "USD",
+    "timeframe": "1h",
+    "dry_run": true,
+    "trading_mode": "spot",
+    "margin_mode": "isolated",
+    "cancel_open_orders_on_exit": false,
+    "exchange": {
+        "name": "binance",
+        "ccxt_config": {
+            "proxies": {
+                "http": "http://127.0.0.1:8118",
+                "https": "http://127.0.0.1:8118"
+            },
+            "options": {
+                "defaultType": "spot",
+                "timeout": 60000
+            }
+        },
+        "ccxt_async_config": {
+            "aiohttp_proxy": "http://127.0.0.1:8118"
+        },
+        "pair_whitelist": [
+            "BTC/USDT",
+            "ETH/USDT",
+            "SOL/USDT",
+            "XRP/USDT",
+            "BNB/USDT",
+            "NEAR/USDT"
+        ]
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        }
+    ],
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    }
+}
