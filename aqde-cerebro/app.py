@@ -1,31 +1,55 @@
-from flask import Flask, request, jsonify
-import sys
+from flask import Flask, render_template, jsonify
 import os
-
-# Asegurar importaciones
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from motores.score_engine import calcular_score_astral
-from motores.astro_engine import CARTAS_NATALES
+import json
+import pandas as pd
+from datetime import datetime
+from motores.astro_engine import get_transitos_hoy
 
 app = Flask(__name__)
 
-@app.route('/api/senal', methods=['GET'])
-def get_senal():
-    asset = request.args.get('asset', 'BTC').upper()
-    
-    if asset not in CARTAS_NATALES:
-        return jsonify({"error": f"Activo {asset} no soportado. Soportados: {list(CARTAS_NATALES.keys())}"}), 400
-        
-    try:
-        resultado = calcular_score_astral(asset)
-        return jsonify(resultado), 200
-    except Exception as e:
-        return jsonify({"error": str(e), "score": 50, "bias": "NEUTRO"}), 500
+# Configuración
+DATOS_DIR = "datos"
+FEATURE_IMPORTANCE_FILE = os.path.join(DATOS_DIR, "feature_importance_results.json")
 
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({"status": "ok", "service": "AQDE Cerebro Astral"}), 200
+def load_astro_data():
+    if os.path.exists(FEATURE_IMPORTANCE_FILE):
+        with open(FEATURE_IMPORTANCE_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+@app.route('/')
+def index():
+    # Cargar importancia de planetas
+    data = load_astro_data()
+    
+    # Obtener tránsitos generales de hoy (usando BTC como referencia global)
+    transitos = get_transitos_hoy("BTC", datetime.now())
+    
+    return render_template('index.html', 
+                           monedas=data, 
+                           transitos=transitos,
+                           now=datetime.now().strftime("%Y-%m-%d %H:%M"))
+
+@app.route('/api/status')
+def status():
+    return jsonify({
+        "status": "online",
+        "engine": "AQDE Astro-Quantum",
+        "last_update": datetime.now().isoformat()
+    })
+
+@app.route('/moneda/<symbol>')
+def detail(symbol):
+    data = load_astro_data()
+    moneda_data = data.get(symbol.upper(), {})
+    
+    if not moneda_data:
+        return "Moneda no encontrada", 404
+        
+    return render_template('detail.html', 
+                           symbol=symbol.upper(), 
+                           data=moneda_data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    # En producción usaremos Gunicorn, pero para desarrollo:
+    app.run(host='0.0.0.0', port=5000, debug=True)

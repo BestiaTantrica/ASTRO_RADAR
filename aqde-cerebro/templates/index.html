@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="animate-fade">
+    <div style="margin-bottom: 4rem; text-align: center;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 1rem;">Sincronía Cósmica del Mercado</h1>
+        <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+            Analizando tránsitos planetarios y señales cuánticas en tiempo real. 
+            Última actualización estelar: <span style="color: var(--accent-primary);">{{ now }}</span>
+        </p>
+    </div>
+
+    <!-- Sección de Tránsitos Globales -->
+    <div style="margin-bottom: 4rem;">
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">Tránsitos Dominantes Hoy</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+            {% for t in transitos %}
+            <div class="glass-card" style="padding: 1.5rem;">
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">{{ t.aspecto }}</div>
+                <div style="font-size: 1.2rem; font-weight: 600;">
+                    {{ t.planeta_transito }} <span style="color: var(--accent-primary);">/</span> {{ t.planeta_natal }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sección de Monedas (ADN Astrológico) -->
+    <div>
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">ADN de Monedas (XGBoost Insights)</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+            {% for symbol, data in monedas.items() %}
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.8rem;">{{ symbol }}</h3>
+                    <div style="background: rgba(0,255,0,0.1); color: #00ff00; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">
+                        AUC: {{ data.auc_promedio }}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">Importancia de Features (Planetas):</p>
+                    {% for feat, imp in data.importancias.items() %}
+                    <div style="margin-bottom: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+                            <span>{{ feat }}</span>
+                            <span>{{ (imp * 100)|round(1) }}%</span>
+                        </div>
+                        <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
+                            <div style="width: {{ imp * 100 }}%; height: 100%; background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <a href="/moneda/{{ symbol }}" class="btn-primary" style="width: 100%; text-align: center; margin-top: 1rem;">Ver Análisis Profundo</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
